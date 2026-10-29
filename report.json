@@ -1,0 +1,352 @@
+{
+  "claim_tier_classification": {
+    "n": 24,
+    "weights": {
+      "w_ai": 0.05,
+      "w_claim": 0.05,
+      "w_contradiction": 0.9
+    },
+    "accuracy_pct": 83.33,
+    "confusion_matrix": {
+      "Low": {
+        "Low": 7,
+        "Medium": 2,
+        "High": 0
+      },
+      "Medium": {
+        "Low": 0,
+        "Medium": 6,
+        "High": 0
+      },
+      "High": {
+        "Low": 0,
+        "Medium": 2,
+        "High": 7
+      }
+    },
+    "per_class": {
+      "Low": {
+        "precision": 1.0,
+        "recall": 0.778,
+        "f1": 0.875,
+        "support": 9
+      },
+      "Medium": {
+        "precision": 0.6,
+        "recall": 1.0,
+        "f1": 0.75,
+        "support": 6
+      },
+      "High": {
+        "precision": 1.0,
+        "recall": 0.778,
+        "f1": 0.875,
+        "support": 9
+      },
+      "macro_avg": {
+        "precision": 0.867,
+        "recall": 0.852,
+        "f1": 0.833,
+        "support": 24
+      }
+    }
+  },
+  "reader_study": {
+    "available": true,
+    "n_ratings": 12,
+    "by_shown_label": {
+      "human": {
+        "n": 6,
+        "mean_ratings": {
+          "credibility": 4.33,
+          "clarity": 4.83,
+          "neutrality": 3.17,
+          "complexity": 2.83,
+          "coherence": 2.67,
+          "quality": 3.67
+        }
+      },
+      "none": {
+        "n": 3,
+        "mean_ratings": {
+          "credibility": 4.0,
+          "clarity": 4.67,
+          "neutrality": 4.0,
+          "complexity": 2.0,
+          "coherence": 3.67,
+          "quality": 4.0
+        }
+      },
+      "ai": {
+        "n": 3,
+        "mean_ratings": {
+          "credibility": 3.33,
+          "clarity": 2.67,
+          "neutrality": 3.33,
+          "complexity": 3.67,
+          "coherence": 3.0,
+          "quality": 3.0
+        }
+      }
+    }
+  },
+  "ai_vs_human_detection": {
+    "available": true,
+    "n": 24,
+    "threshold": 0.5,
+    "accuracy_pct": 75.0,
+    "confusion_matrix": {
+      "human": {
+        "human": 6,
+        "ai": 6
+      },
+      "ai": {
+        "human": 0,
+        "ai": 12
+      }
+    },
+    "per_class": {
+      "human": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1": 0.667,
+        "support": 12
+      },
+      "ai": {
+        "precision": 0.667,
+        "recall": 1.0,
+        "f1": 0.8,
+        "support": 12
+      },
+      "macro_avg": {
+        "precision": 0.834,
+        "recall": 0.75,
+        "f1": 0.734,
+        "support": 24
+      }
+    },
+    "mean_p_ai_generated_by_actual_origin": {
+      "human": 0.5387,
+      "ai": 0.732
+    },
+    "per_article": [
+      {
+        "article_id": "a50c5682-e109-4ac6-9a55-4d9fad711619",
+        "title": "City's Water Treatment Upgrade Leads to Significant Reduction in Lead Test Failures",
+        "topic": "water_treatment",
+        "actual_origin": "ai",
+        "predicted": "ai",
+        "article_p_ai": 0.5434,
+        "correct": true
+      },
+      {
+        "article_id": "8889f6f0-da28-4442-8910-ce4cf7657285",
+        "title": "School District Pauses Tablet Rollout Following Mixed Pilot Program Results",
+        "topic": "school_tablets",
+        "actual_origin": "ai",
+        "predicted": "ai",
+        "article_p_ai": 0.6984,
+        "correct": true
+      },
+      {
+        "article_id": "df177df1-0b79-4ba5-aded-af321eafa20c",
+        "title": "Regional Wheat Harvest Sees 12% Decline Amid Dry Spring Conditions",
+        "topic": "harvest_report",
+        "actual_origin": "ai",
+        "predicted": "ai",
+        "article_p_ai": 0.7289,
+        "correct": true
+      },
+      {
+        "article_id": "67e73787-9d5b-4017-9f61-3f1eaada8e44",
+        "title": "Health Officials Encourage Early Flu Vaccinations as Cases Rise Ahead of Schedule",
+        "topic": "flu_season",
+        "actual_origin": "ai",
+        "predicted": "ai",
+        "article_p_ai": 0.7369,
+        "correct": true
+      },
+      {
+        "article_id": "cc94ee9c-aa9c-45df-8bb6-c76becf62209",
+        "title": "Riverside High School Secures District Championship Victory in Overtime Thriller",
+        "topic": "district_sports",
+        "actual_origin": "ai",
+        "predicted": "ai",
+        "article_p_ai": 0.8339,
+        "correct": true
+      },
+      {
+        "article_id": "ecbd6a26-1f06-4c9b-8fe9-e23727c30520",
+        "title": "New Bus Route Approved to Improve City Transit Connectivity",
+        "topic": "bus_route",
+        "actual_origin": "ai",
+        "predicted": "ai",
+        "article_p_ai": 0.8508,
+        "correct": true
+      },
+      {
+        "article_id": "8d50e52f-08ba-4f7b-970e-d27371f771cf",
+        "title": "Upgraded water treatment plant cuts lead testing failures by half, city says",
+        "topic": "water_treatment",
+        "actual_origin": "human",
+        "predicted": "human",
+        "article_p_ai": 0.3594,
+        "correct": true
+      },
+      {
+        "article_id": "0685b1aa-6990-4556-9c85-ba8c3cf491f7",
+        "title": "School district pauses tablet rollout after pilot shows mixed results",
+        "topic": "school_tablets",
+        "actual_origin": "human",
+        "predicted": "human",
+        "article_p_ai": 0.2136,
+        "correct": true
+      },
+      {
+        "article_id": "4fcf8b23-207c-4da9-97f7-9553389b33f6",
+        "title": "Regional wheat harvest down 12% after dry spring, farmers group reports",
+        "topic": "harvest_report",
+        "actual_origin": "human",
+        "predicted": "human",
+        "article_p_ai": 0.4987,
+        "correct": true
+      },
+      {
+        "article_id": "ba1f9ccb-ca97-4e4e-8c2e-41849b91a802",
+        "title": "Health department urges early flu shots as cases tick up earlier than usual",
+        "topic": "flu_season",
+        "actual_origin": "human",
+        "predicted": "ai",
+        "article_p_ai": 0.5574,
+        "correct": false
+      },
+      {
+        "article_id": "87f67d87-8063-42d7-8d5f-a4e5c41a6156",
+        "title": "Riverside edges Lakeview 3-2 in overtime to claim district final",
+        "topic": "district_sports",
+        "actual_origin": "human",
+        "predicted": "ai",
+        "article_p_ai": 0.8076,
+        "correct": false
+      },
+      {
+        "article_id": "814a2ec8-296c-4e49-811a-3c83673971ec",
+        "title": "City council approves new cross-town bus route after two years of hearings",
+        "topic": "bus_route",
+        "actual_origin": "human",
+        "predicted": "ai",
+        "article_p_ai": 0.7955,
+        "correct": false
+      },
+      {
+        "article_id": "7f5bd40c-5c78-4b83-ad46-55472c14e8c2",
+        "title": "City's Water Treatment Upgrade Leads to Significant Reduction in Lead Test Failures",
+        "topic": "water_treatment",
+        "actual_origin": "ai",
+        "predicted": "ai",
+        "article_p_ai": 0.5434,
+        "correct": true
+      },
+      {
+        "article_id": "eb7929b0-53c1-40a6-b64c-36c2a0b31b9f",
+        "title": "School District Pauses Tablet Rollout Following Mixed Pilot Program Results",
+        "topic": "school_tablets",
+        "actual_origin": "ai",
+        "predicted": "ai",
+        "article_p_ai": 0.6984,
+        "correct": true
+      },
+      {
+        "article_id": "336f7829-2448-43ff-a098-c4a372985959",
+        "title": "Regional Wheat Harvest Sees 12% Decline Amid Dry Spring Conditions",
+        "topic": "harvest_report",
+        "actual_origin": "ai",
+        "predicted": "ai",
+        "article_p_ai": 0.7289,
+        "correct": true
+      },
+      {
+        "article_id": "28a75619-1b17-4d05-b1a2-5412679ade72",
+        "title": "Health Officials Encourage Early Flu Vaccinations as Cases Rise Ahead of Schedule",
+        "topic": "flu_season",
+        "actual_origin": "ai",
+        "predicted": "ai",
+        "article_p_ai": 0.7369,
+        "correct": true
+      },
+      {
+        "article_id": "cd534f28-f95d-4265-ac54-eb28f3c12771",
+        "title": "Riverside High School Secures District Championship Victory in Overtime Thriller",
+        "topic": "district_sports",
+        "actual_origin": "ai",
+        "predicted": "ai",
+        "article_p_ai": 0.8339,
+        "correct": true
+      },
+      {
+        "article_id": "8f772656-0988-495c-83c4-cc600de95b37",
+        "title": "New Bus Route Approved to Improve City Transit Connectivity",
+        "topic": "bus_route",
+        "actual_origin": "ai",
+        "predicted": "ai",
+        "article_p_ai": 0.8508,
+        "correct": true
+      },
+      {
+        "article_id": "c143a38c-20b6-4655-a641-e3f0abb1d622",
+        "title": "Upgraded water treatment plant cuts lead testing failures by half, city says",
+        "topic": "water_treatment",
+        "actual_origin": "human",
+        "predicted": "human",
+        "article_p_ai": 0.3594,
+        "correct": true
+      },
+      {
+        "article_id": "8b9395af-6515-4348-bc69-e6b207c2303b",
+        "title": "School district pauses tablet rollout after pilot shows mixed results",
+        "topic": "school_tablets",
+        "actual_origin": "human",
+        "predicted": "human",
+        "article_p_ai": 0.2136,
+        "correct": true
+      },
+      {
+        "article_id": "905e2229-7857-446a-a4a2-74c56079657d",
+        "title": "Regional wheat harvest down 12% after dry spring, farmers group reports",
+        "topic": "harvest_report",
+        "actual_origin": "human",
+        "predicted": "human",
+        "article_p_ai": 0.4987,
+        "correct": true
+      },
+      {
+        "article_id": "9bd646ef-be2e-4d03-980d-3eee0b76c746",
+        "title": "Health department urges early flu shots as cases tick up earlier than usual",
+        "topic": "flu_season",
+        "actual_origin": "human",
+        "predicted": "ai",
+        "article_p_ai": 0.5574,
+        "correct": false
+      },
+      {
+        "article_id": "3f2222bf-350d-425e-832c-c99e22ba2668",
+        "title": "Riverside edges Lakeview 3-2 in overtime to claim district final",
+        "topic": "district_sports",
+        "actual_origin": "human",
+        "predicted": "ai",
+        "article_p_ai": 0.8076,
+        "correct": false
+      },
+      {
+        "article_id": "d56a3dfe-6c73-4cec-9936-f4df175a78ce",
+        "title": "City council approves new cross-town bus route after two years of hearings",
+        "topic": "bus_route",
+        "actual_origin": "human",
+        "predicted": "ai",
+        "article_p_ai": 0.7955,
+        "correct": false
+      }
+    ],
+    "caveat": "N is small (one data point per article, not per sentence) - treat this as a pilot measurement, not a statistically robust accuracy figure. Expand study_articles/ with more same-story human/AI pairs across topics for a sturdier result."
+  }
+}

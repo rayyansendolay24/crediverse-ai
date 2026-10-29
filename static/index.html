@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Machine Credibility — Test Interface</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+         max-width: 960px; margin: 30px auto; padding: 0 20px; color: #222; line-height: 1.5; }
+  h1 { margin-bottom: 5px; }
+  p.subtitle { color: #555; margin-top: 0; }
+  input[type=text], textarea { width: 100%; box-sizing: border-box; padding: 10px; font-size: 14px;
+         border: 1px solid #ccc; border-radius: 4px; font-family: inherit; margin-bottom: 8px; }
+  textarea { height: 160px; }
+  .controls { margin-top: 10px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+  button { padding: 10px 22px; font-size: 15px; font-weight: 600; background: #0066cc; color: #fff;
+           border: none; border-radius: 4px; cursor: pointer; }
+  button:hover { background: #0052a3; }
+  button:disabled { background: #999; cursor: not-allowed; }
+  .loading { margin-top: 20px; padding: 12px; background: #f0f4f8; border-left: 4px solid #0066cc; font-weight: 500; }
+  .error-box { margin-top: 20px; padding: 12px; background: #ffebe6; border-left: 4px solid #cc0000; color: #900; }
+  .card { margin-top: 20px; padding: 15px; background: #fafafa; border: 1px solid #ddd; border-radius: 4px; }
+  .card h2, .card h3 { margin-top: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 10px; }
+  .metric { background: #fff; padding: 10px; border: 1px solid #eee; border-radius: 4px; }
+  .metric-label { font-size: 12px; color: #666; text-transform: uppercase; }
+  .metric-value { font-size: 18px; font-weight: bold; margin-top: 4px; }
+  .tier-Low, .tier-High-good { color: #080; }
+  .tier-Medium, .tier-Moderate { color: #b06000; }
+  .tier-High { color: #c00; }
+  .claim { border: 1px solid #ddd; border-radius: 4px; padding: 14px; margin-bottom: 12px; background: #fff; }
+  .claim-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; }
+  .badge-supported { background: #e6f4ea; color: #137333; }
+  .badge-contradicted { background: #fce8e6; color: #c5221f; }
+  .badge-insufficient_evidence { background: #fef7e0; color: #b06000; }
+  .badge-not_verified { background: #eee; color: #666; }
+  .just { font-size: 14px; background: #f8f9fa; padding: 8px 10px; border-left: 3px solid #ccc; margin-top: 8px; }
+  ul.plain { padding-left: 18px; }
+  .sentence { padding: 2px; border-radius: 2px; }
+  .sentence.ai-high { background: #ffe0e0; }
+  .sentence.ai-uncertain { background: #fff6d8; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 8px; }
+  .tab-btn { padding: 6px 14px; font-size: 13px; font-weight: 600; background: #eee; color: #444;
+             border: 1px solid #ccc; border-radius: 4px 4px 0 0; cursor: pointer; }
+  .tab-btn.active { background: #fff; color: #0066cc; border-bottom: 1px solid #fff; }
+  .rating-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .rating-row label { flex: 0 0 110px; font-size: 13px; color: #444; }
+  .rating-row input[type=range] { flex: 1; }
+  .rating-row .rv { width: 18px; text-align: center; font-weight: bold; }
+  .feedback-ok { color: #137333; font-size: 13px; margin-top: 8px; }
+  nav.topnav { margin-bottom: 15px; }
+  nav.topnav button { background: none; border: none; color: #0066cc; cursor: pointer; font-size: 14px;
+                       padding: 4px 10px; text-decoration: underline; }
+  table.simple { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  table.simple th, table.simple td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #eee; }
+</style>
+</head>
+<body>
+  <h1>Machine Credibility</h1>
+  <p class="subtitle">How news readers evaluate AI-generated content — analysis testbed</p>
+
+  <nav class="topnav">
+    <button type="button" id="nav-analyze" class="tab-btn active">Analyze</button>
+    <button type="button" id="nav-history">History</button>
+    <button type="button" id="nav-analytics">Analytics</button>
+    <a href="/survey" style="margin-left:10px;font-size:14px;">Reader Study &rarr;</a>
+  </nav>
+
+  <section id="view-analyze">
+    <div class="tabs">
+      <button type="button" class="tab-btn active" id="tab-text">Paste text</button>
+      <button type="button" class="tab-btn" id="tab-url">From URL</button>
+    </div>
+    <form id="analyze-form">
+      <label><strong>Headline (optional):</strong></label>
+      <input type="text" id="title" placeholder="Article headline...">
+
+      <div id="input-text">
+        <label><strong>Article text:</strong></label>
+        <textarea id="article_text" placeholder="Paste an article here..."></textarea>
+      </div>
+      <div id="input-url" style="display:none;">
+        <label><strong>Article URL:</strong></label>
+        <input type="text" id="article_url" placeholder="https://example.com/news/some-article">
+        <p style="font-size:12px;color:#666;margin-top:-4px;">The backend fetches the page and extracts the article text automatically. Paywalled or JS-rendered pages may fail to extract.</p>
+      </div>
+
+      <div class="controls">
+        <button type="submit" id="submit-btn">Analyze</button>
+        <label style="font-size:14px;color:#444;">Claim threshold:
+          <input type="number" id="claim_threshold" value="0.65" step="0.05" min="0" max="1" style="width:60px;">
+        </label>
+        <label style="font-size:14px;color:#444;" title="Only this many of the most check-worthy claims get web evidence + verdict scoring per run - the rest are listed but unverified, to keep analysis time reasonable on long articles.">Max claims to verify:
+          <input type="number" id="max_claims_to_verify" value="15" step="1" min="1" max="100" style="width:60px;">
+        </label>
+        <label style="font-size:14px;color:#444;">
+          <input type="checkbox" id="include_llm_judge" checked> include LLM judge
+        </label>
+      </div>
+    </form>
+
+    <div id="loading" class="loading" style="display:none;">
+      Running analysis across DeBERTa, RoBERTa, Tavily, and Groq (can take 15-30s for short articles;
+      longer for articles with many check-worthy claims, up to the "max claims to verify" cap)...
+    </div>
+    <div id="error" class="error-box" style="display:none;"></div>
+    <div id="results" style="display:none;"></div>
+  </section>
+
+  <section id="view-history" style="display:none;">
+    <div class="card"><h2>Recent analyses</h2><div id="history-list">Loading...</div></div>
+  </section>
+
+  <section id="view-analytics" style="display:none;">
+    <div class="card"><h2>Analytics</h2><div id="analytics-body">Loading...</div></div>
+  </section>
+
+  <script>
+    const form = document.getElementById("analyze-form");
+    const loadingDiv = document.getElementById("loading");
+    const errorDiv = document.getElementById("error");
+    const resultsDiv = document.getElementById("results");
+    const submitBtn = document.getElementById("submit-btn");
+    const API_BASE = window.location.origin.startsWith("http") ? "" : "http://127.0.0.1:8000";
+
+    // ---- input-mode tabs (paste text vs URL) ----
+    const tabText = document.getElementById("tab-text");
+    const tabUrl = document.getElementById("tab-url");
+    const inputText = document.getElementById("input-text");
+    const inputUrl = document.getElementById("input-url");
+    let inputMode = "text";
+    tabText.addEventListener("click", () => {
+      inputMode = "text"; tabText.classList.add("active"); tabUrl.classList.remove("active");
+      inputText.style.display = "block"; inputUrl.style.display = "none";
+    });
+    tabUrl.addEventListener("click", () => {
+      inputMode = "url"; tabUrl.classList.add("active"); tabText.classList.remove("active");
+      inputUrl.style.display = "block"; inputText.style.display = "none";
+    });
+
+    // ---- top nav (Analyze / History / Analytics) ----
+    const views = { analyze: document.getElementById("view-analyze"),
+                     history: document.getElementById("view-history"),
+                     analytics: document.getElementById("view-analytics") };
+    const navBtns = { analyze: document.getElementById("nav-analyze"),
+                       history: document.getElementById("nav-history"),
+                       analytics: document.getElementById("nav-analytics") };
+    function showView(name) {
+      for (const k in views) { views[k].style.display = k === name ? "block" : "none"; navBtns[k].classList.toggle("active", k === name); }
+      if (name === "history") loadHistory();
+      if (name === "analytics") loadAnalytics();
+    }
+    navBtns.analyze.addEventListener("click", () => showView("analyze"));
+    navBtns.history.addEventListener("click", () => showView("history"));
+    navBtns.analytics.addEventListener("click", () => showView("analytics"));
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const text = document.getElementById("article_text").value.trim();
+      const url = document.getElementById("article_url").value.trim();
+
+      const payload = {
+        title: document.getElementById("title").value.trim() || null,
+        claim_threshold: parseFloat(document.getElementById("claim_threshold").value) || 0.65,
+        max_claims_to_verify: parseInt(document.getElementById("max_claims_to_verify").value, 10) || 15,
+        include_llm_judge: document.getElementById("include_llm_judge").checked,
+      };
+      if (inputMode === "url") {
+        if (!url) { alert("Enter an article URL first."); return; }
+        payload.url = url;
+      } else {
+        if (!text) { alert("Paste some article text first."); return; }
+        payload.article_text = text;
+      }
+
+      errorDiv.style.display = "none";
+      resultsDiv.style.display = "none";
+      loadingDiv.style.display = "block";
+      loadingDiv.textContent = inputMode === "url"
+        ? "Fetching the article, then running analysis across DeBERTa, RoBERTa, Tavily, and Groq (can take 20-40s)..."
+        : "Running analysis across DeBERTa, RoBERTa, Tavily, and Groq (can take 15-30s)...";
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch(`${API_BASE}/analyze`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || `Server error ${res.status}`);
+        render(data);
+      } catch (err) {
+        errorDiv.textContent = `Error: ${err.message}`;
+        errorDiv.style.display = "block";
+      } finally {
+        loadingDiv.style.display = "none";
+        submitBtn.disabled = false;
+      }
+    });
+
+    // ---- reader feedback form (Objective 2) ----
+    const FEEDBACK_DIMS = ["credibility", "clarity", "neutrality", "complexity", "coherence", "quality"];
+    function feedbackFormHtml(analysisId) {
+      if (!analysisId) return `<div class="card"><p style="color:#900;">Feedback unavailable - this analysis wasn't saved to the database.</p></div>`;
+      const rows = FEEDBACK_DIMS.map(d => `
+        <div class="rating-row">
+          <label for="fb-${d}">${d}</label>
+          <input type="range" id="fb-${d}" min="1" max="5" value="3" oninput="document.getElementById('fbv-${d}').textContent=this.value">
+          <span class="rv" id="fbv-${d}">3</span>
+        </div>`).join("");
+      return `
+        <div class="card" id="feedback-card">
+          <h3>Rate this article as a reader</h3>
+          <p style="font-size:13px;color:#666;">This is your own impression, separate from the model's scores above.</p>
+          ${rows}
+          <textarea id="fb-comment" placeholder="Optional comment..." style="height:60px;"></textarea>
+          <button type="button" id="fb-submit">Submit feedback</button>
+          <div id="fb-status"></div>
+        </div>`;
+    }
+    function wireFeedbackForm(analysisId) {
+      const btn = document.getElementById("fb-submit");
+      if (!btn) return;
+      btn.addEventListener("click", async () => {
+        const payload = { analysis_id: analysisId, comment: document.getElementById("fb-comment").value.trim() || null };
+        FEEDBACK_DIMS.forEach(d => payload[d] = parseInt(document.getElementById(`fb-${d}`).value, 10));
+        const statusDiv = document.getElementById("fb-status");
+        btn.disabled = true;
+        try {
+          const res = await fetch(`${API_BASE}/feedback`, {
+            method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || `Server error ${res.status}`);
+          statusDiv.innerHTML = `<p class="feedback-ok">Thanks — feedback saved.</p>`;
+          btn.remove();
+        } catch (err) {
+          statusDiv.innerHTML = `<p style="color:#900;font-size:13px;">Could not save feedback: ${esc(err.message)}</p>`;
+          btn.disabled = false;
+        }
+      });
+    }
+
+    // ---- history + analytics ----
+    async function loadHistory() {
+      const el = document.getElementById("history-list");
+      el.textContent = "Loading...";
+      try {
+        const res = await fetch(`${API_BASE}/history?limit=50`);
+        const rows = await res.json();
+        if (!res.ok) throw new Error(rows.detail || `Server error ${res.status}`);
+        if (!rows.length) { el.innerHTML = "<p><em>No analyses saved yet.</em></p>"; return; }
+        el.innerHTML = `<table class="simple"><tr><th>When</th><th>Title</th><th>Credibility</th><th>Risk</th><th>Claims</th></tr>` +
+          rows.map(r => `<tr>
+            <td>${esc((r.created_at || "").replace("T", " ").slice(0, 19))}</td>
+            <td>${esc(r.title || "(untitled)")}</td>
+            <td class="tier-${r.credibility_tier}">${r.credibility_score ?? "--"} (${esc(r.credibility_tier || "--")})</td>
+            <td class="tier-${r.overall_risk_tier}">${r.overall_risk_score ?? "--"} (${esc(r.overall_risk_tier || "--")})</td>
+            <td>${r.num_claims_found ?? "--"}</td>
+          </tr>`).join("") + `</table>`;
+      } catch (err) {
+        el.innerHTML = `<p style="color:#900;">Error: ${esc(err.message)}</p>`;
+      }
+    }
+
+    async function loadAnalytics() {
+      const el = document.getElementById("analytics-body");
+      el.textContent = "Loading...";
+      try {
+        const res = await fetch(`${API_BASE}/analytics`);
+        const a = await res.json();
+        if (!res.ok) throw new Error(a.detail || `Server error ${res.status}`);
+        let html = `<div class="grid">
+          <div class="metric"><div class="metric-label">Analyses stored</div><div class="metric-value">${a.num_analyses}</div></div>
+          <div class="metric"><div class="metric-label">Feedback submissions</div><div class="metric-value">${a.num_feedback_submissions}</div></div>
+          <div class="metric"><div class="metric-label">Mean credibility</div><div class="metric-value">${a.mean_credibility_score ?? "--"}</div></div>
+          <div class="metric"><div class="metric-label">Mean risk</div><div class="metric-value">${a.mean_overall_risk_score ?? "--"}</div></div>
+        </div>`;
+        const tiers = a.credibility_tier_distribution || {};
+        if (Object.keys(tiers).length) {
+          html += `<h3>Credibility tier distribution</h3><table class="simple">` +
+            Object.entries(tiers).map(([t, n]) => `<tr><td>${esc(t)}</td><td>${n}</td></tr>`).join("") + `</table>`;
+        }
+        if (a.mean_reader_feedback && Object.keys(a.mean_reader_feedback).length) {
+          html += `<h3>Mean reader feedback (1-5)</h3><table class="simple">` +
+            Object.entries(a.mean_reader_feedback).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${v}</td></tr>`).join("") + `</table>`;
+        } else {
+          html += `<p style="font-size:13px;color:#666;">No reader feedback submitted yet.</p>`;
+        }
+        el.innerHTML = html;
+      } catch (err) {
+        el.innerHTML = `<p style="color:#900;">Error: ${esc(err.message)}</p>`;
+      }
+    }
+
+    function esc(s) {
+      if (!s) return "";
+      return s.replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+    }
+
+    function render(data) {
+      const cred = data.credibility || {};
+      const eng = data.engagement || {};
+      const ai = data.ai_detection || {};
+      const rm = data.article_metrics?.readability || {};
+
+      let html = `
+        <div class="card">
+          <h2>Credibility &amp; Risk Summary</h2>
+          <div class="grid">
+            <div class="metric"><div class="metric-label">Credibility</div>
+              <div class="metric-value tier-${cred.tier}">${cred.score ?? "--"} / 100</div></div>
+            <div class="metric"><div class="metric-label">Credibility tier</div>
+              <div class="metric-value tier-${cred.tier}">${cred.tier ?? "--"}</div></div>
+            <div class="metric"><div class="metric-label">Overall risk</div>
+              <div class="metric-value tier-${data.overall_risk_tier}">${data.overall_risk_score} / 100</div></div>
+            <div class="metric"><div class="metric-label">Claims found</div>
+              <div class="metric-value">${data.num_claims_found}${data.num_claims_skipped ? ` (${data.num_claims_verified} verified)` : ""}</div></div>
+            <div class="metric"><div class="metric-label">AI-likelihood</div>
+              <div class="metric-value">${ai.label ?? "--"}</div></div>
+            <div class="metric"><div class="metric-label">Engagement score</div>
+              <div class="metric-value">${eng.engagement_score ?? "--"} / 100</div></div>
+            <div class="metric"><div class="metric-label">Readability (FK grade)</div>
+              <div class="metric-value">${rm.flesch_kincaid_grade ?? "--"}</div></div>
+          </div>
+          ${data.num_claims_skipped ? `<p style="font-size:13px;color:#b06000;margin-top:10px;">
+            ${data.num_claims_skipped} of ${data.num_claims_found} claim(s) were not checked against
+            evidence (only the top ${data.max_claims_to_verify} most check-worthy claims are verified
+            per run) - raise "Max claims to verify" above and re-run to check more.</p>` : ""}
+        </div>`;
+
+      const exp = data.explainability?.credibility;
+      if (exp) {
+        html += `<div class="card"><h3>Why this score</h3><p>${esc(exp.summary)}</p>`;
+        if (exp.strengths?.length) html += `<strong>Strengths</strong><ul class="plain">${exp.strengths.map(s => `<li>${esc(s)}</li>`).join("")}</ul>`;
+        if (exp.concerns?.length) html += `<strong>Concerns</strong><ul class="plain">${exp.concerns.map(s => `<li>${esc(s)}</li>`).join("")}</ul>`;
+        if (exp.notes?.length) html += `<strong>Notes</strong><ul class="plain">${exp.notes.map(s => `<li>${esc(s)}</li>`).join("")}</ul>`;
+        html += `</div>`;
+      }
+
+      const highlights = data.explainability?.highlights || [];
+      if (highlights.length) {
+        html += `<div class="card"><h3>Sentence-level AI highlighting</h3><p>`;
+        highlights.forEach(h => {
+          const cls = h.ai_label === "ai" ? "ai-high" : h.ai_label === "uncertain" ? "ai-uncertain" : "";
+          html += `<span class="sentence ${cls}" title="p(AI)=${h.p_ai}, verdict=${h.verdict ?? "n/a"}">${esc(h.text)}</span> `;
+        });
+        html += `</p><p style="font-size:12px;color:#666;">Red = likely AI-flagged, yellow = uncertain, plain = likely human-written. Hover a sentence for detail.</p></div>`;
+      }
+
+      const claims = data.claims || [];
+      html += `<div class="card"><h3>Extracted claims &amp; verdicts</h3>`;
+      if (!claims.length) {
+        html += `<p><em>No check-worthy factual claims detected.</em></p>`;
+      } else {
+        claims.forEach((c, i) => {
+          if (c.verification_skipped) {
+            html += `
+              <div class="claim">
+                <div class="claim-header">
+                  <span><strong>Claim #${i + 1}</strong></span>
+                  <span class="badge badge-not_verified">NOT VERIFIED</span>
+                </div>
+                <div>"${esc(c.text)}"</div>
+                <div style="font-size:13px;color:#555;margin-top:6px;">
+                  P(claim): ${(c.p_claim * 100).toFixed(1)}% &bull; P(AI): ${(c.p_ai_generated * 100).toFixed(1)}%
+                </div>
+                <div class="just">${esc(c.skip_reason || "Not checked against evidence.")}</div>
+              </div>`;
+            return;
+          }
+          const v = c.verdict || "insufficient_evidence";
+          html += `
+            <div class="claim">
+              <div class="claim-header">
+                <span><strong>Claim #${i + 1}</strong></span>
+                <span class="badge badge-${v}">${v.toUpperCase()}</span>
+              </div>
+              <div>"${esc(c.text)}"</div>
+              <div style="font-size:13px;color:#555;margin-top:6px;">
+                Risk: ${c.risk_score} (<span class="tier-${c.risk_tier}">${c.risk_tier}</span>) &bull;
+                P(claim): ${(c.p_claim * 100).toFixed(1)}% &bull;
+                P(AI): ${(c.p_ai_generated * 100).toFixed(1)}%
+              </div>
+              <div class="just"><strong>Justification:</strong> ${esc(c.justification || "n/a")}</div>
+            </div>`;
+        });
+      }
+      html += `</div>`;
+
+      const llm = data.llm_judge;
+      if (llm) {
+        html += `<div class="card"><h3>LLM reader-simulation ratings (1-5)</h3><div class="grid">`;
+        for (const [k, v] of Object.entries(llm.ratings)) {
+          html += `<div class="metric"><div class="metric-label">${k}</div><div class="metric-value">${v}</div></div>`;
+        }
+        html += `</div><p style="margin-top:10px;">${esc(llm.overall_reasoning)}</p></div>`;
+      }
+
+      if (data.source_url) {
+        html += `<div class="card"><h3>Fetched from URL</h3><p style="font-size:13px;word-break:break-all;"><a href="${esc(data.source_url)}" target="_blank" rel="noopener">${esc(data.source_url)}</a></p></div>`;
+      }
+
+      html += feedbackFormHtml(data.analysis_id);
+
+      resultsDiv.innerHTML = html;
+      resultsDiv.style.display = "block";
+      wireFeedbackForm(data.analysis_id);
+    }
+  </script>
+</body>
+</html>

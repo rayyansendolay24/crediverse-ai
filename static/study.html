@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Machine Credibility — Reader Study</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+         max-width: 760px; margin: 30px auto; padding: 0 20px; color: #222; line-height: 1.5; }
+  h1 { margin-bottom: 5px; }
+  p.subtitle { color: #555; margin-top: 0; }
+  .card { margin-top: 20px; padding: 18px; background: #fafafa; border: 1px solid #ddd; border-radius: 4px; }
+  .progress { font-size: 13px; color: #666; margin-bottom: 10px; }
+  .label-chip { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px;
+                font-weight: 600; margin-bottom: 10px; }
+  .label-human { background: #e6f4ea; color: #137333; }
+  .label-ai { background: #e8f0fe; color: #1a56db; }
+  .label-none { background: #f1f3f4; color: #555; }
+  .article-title { font-size: 20px; font-weight: 700; margin: 4px 0 10px; }
+  .article-body { white-space: pre-wrap; font-size: 15px; max-height: 420px; overflow-y: auto;
+                  padding: 12px; background: #fff; border: 1px solid #eee; border-radius: 4px; }
+  .rating-row { display: flex; align-items: center; gap: 10px; margin: 10px 0 0; }
+  .rating-row label { flex: 0 0 130px; font-size: 13px; color: #444; }
+  .rating-row input[type=range] { flex: 1; }
+  .rating-row .rv { width: 18px; text-align: center; font-weight: bold; }
+  button { padding: 10px 22px; font-size: 15px; font-weight: 600; background: #0066cc; color: #fff;
+           border: none; border-radius: 4px; cursor: pointer; margin-top: 18px; }
+  button:hover { background: #0052a3; }
+  button:disabled { background: #999; cursor: not-allowed; }
+  .hint { font-size: 12px; color: #888; margin-top: 10px; }
+  .done-card { text-align: center; padding: 40px 20px; }
+  .error-box { margin-top: 20px; padding: 12px; background: #ffebe6; border-left: 4px solid #cc0000; color: #900; }
+  a { color: #0066cc; }
+</style>
+</head>
+<body>
+  <h1>Reader Study</h1>
+  <p class="subtitle">Read the article below, then rate it on six dimensions. Takes about a minute per article.</p>
+  <p class="hint"><a href="/">&larr; Back to the analysis tool</a></p>
+
+  <div id="app"></div>
+
+<script>
+  const API_BASE = "";
+  const DIMS = [
+    ["credibility", "Credibility"], ["clarity", "Clarity"], ["neutrality", "Neutrality"],
+    ["complexity", "Complexity"], ["coherence", "Coherence"], ["quality", "Overall quality"],
+  ];
+
+  function esc(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+
+  function getSessionId() {
+    let sid = null;
+    try { sid = localStorage.getItem("mc_study_session_id"); } catch (e) {}
+    if (!sid) {
+      sid = (crypto.randomUUID ? crypto.randomUUID() :
+             "sid-" + Date.now() + "-" + Math.random().toString(16).slice(2));
+      try { localStorage.setItem("mc_study_session_id", sid); } catch (e) {}
+    }
+    return sid;
+  }
+
+  const sessionId = getSessionId();
+  const app = document.getElementById("app");
+
+  let current = null;       // current article record from /study/next
+  let startTime = null;     // performance.now() when the article was shown
+  let maxScrollPct = 0;
+
+  function labelText(label) {
+    if (label === "human") return "Labeled: Human-written";
+    if (label === "ai") return "Labeled: AI-generated";
+    return "No authorship label shown";
+  }
+
+  function render(html) { app.innerHTML = html; }
+
+  function renderError(msg) {
+    render(`<div class="error-box">${esc(msg)}</div>`);
+  }
+
+  async function registerSession() {
+    await fetch(`${API_BASE}/study/session?session_id=${encodeURIComponent(sessionId)}`, { method: "POST" });
+  }
+
+  async function loadProgress() {
+    const res = await fetch(`${API_BASE}/study/progress?session_id=${encodeURIComponent(sessionId)}`);
+    return res.ok ? res.json() : null;
+  }
+
+  function trackScroll(el) {
+    const onScroll = () => {
+      const pct = el.scrollHeight <= el.clientHeight ? 100 :
+        Math.min(100, Math.round(100 * (el.scrollTop + el.clientHeight) / el.scrollHeight));
+      if (pct > maxScrollPct) maxScrollPct = pct;
+    };
+    el.addEventListener("scroll", onScroll);
+    onScroll();
+  }
+
+  function ratingRowHtml(key, label) {
+    return `
+      <div class="rating-row">
+        <label for="r-${key}">${esc(label)}</label>
+        <input type="range" id="r-${key}" min="1" max="5" value="3"
+               oninput="document.getElementById('rv-${key}').textContent = this.value">
+        <span class="rv" id="rv-${key}">3</span>
+      </div>`;
+  }
+
+  async function loadNextArticle() {
+    render(`<div class="card">Loading next article…</div>`);
+    const progress = await loadProgress();
+
+    const res = await fetch(`${API_BASE}/study/next?session_id=${encodeURIComponent(sessionId)}`);
+    if (!res.ok) { renderError("Could not reach the study API. Is the server running?"); return; }
+    const data = await res.json();
+
+    if (data.done || !data.article) {
+      render(`<div class="card done-card">
+        <h2>Thank you!</h2>
+        <p>You've rated every article currently in the study set${progress ? ` (${progress.total_articles} total)` : ""}.</p>
+      </div>`);
+      return;
+    }
+
+    current = data.article;
+    startTime = performance.now();
+    maxScrollPct = 0;
+
+    const labelClass = "label-" + current.shown_label;
+    const progressText = progress
+      ? `Article ${progress.rated_by_session + 1} of ${progress.total_articles}`
+      : "";
+
+    render(`
+      <div class="progress">${esc(progressText)}</div>
+      <div class="card">
+        <span class="label-chip ${labelClass}">${esc(labelText(current.shown_label))}</span>
+        <div class="article-title">${esc(current.title || "(untitled)")}</div>
+        <div class="article-body" id="article-body">${esc(current.body_text)}</div>
+      </div>
+      <div class="card">
+        <h3>Rate this article (1 = low, 5 = high)</h3>
+        ${DIMS.map(([k, l]) => ratingRowHtml(k, l)).join("")}
+        <button type="button" id="submit-btn">Submit and continue</button>
+        <div id="submit-status"></div>
+      </div>
+    `);
+
+    trackScroll(document.getElementById("article-body"));
+    fetch(`${API_BASE}/study/behavior`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: sessionId, article_id: current.id, event_type: "page_view" }),
+    }).catch(() => {});
+
+    document.getElementById("submit-btn").addEventListener("click", submitRating);
+  }
+
+  async function submitRating() {
+    const btn = document.getElementById("submit-btn");
+    btn.disabled = true;
+    const statusEl = document.getElementById("submit-status");
+    statusEl.textContent = "Saving…";
+
+    const timeOnPageSec = Math.round((performance.now() - startTime) / 100) / 10;
+    const payload = { session_id: sessionId, article_id: current.id, shown_label: current.shown_label };
+    DIMS.forEach(([k]) => { payload[k] = parseInt(document.getElementById(`r-${k}`).value, 10); });
+
+    try {
+      const res = await fetch(`${API_BASE}/study/rating`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || `HTTP ${res.status}`);
+      }
+
+      await Promise.all([
+        fetch(`${API_BASE}/study/behavior`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session_id: sessionId, article_id: current.id, event_type: "time_on_page", value: timeOnPageSec }),
+        }),
+        fetch(`${API_BASE}/study/behavior`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session_id: sessionId, article_id: current.id, event_type: "scroll_depth", value: maxScrollPct }),
+        }),
+      ]);
+
+      await loadNextArticle();
+    } catch (err) {
+      statusEl.innerHTML = `<p style="color:#900;font-size:13px;">Could not save rating: ${esc(err.message)}</p>`;
+      btn.disabled = false;
+    }
+  }
+
+  (async function init() {
+    await registerSession();
+    await loadNextArticle();
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# Large model weights - copy in manually, see README "Setup"
+deberta_claim_classifier_fp32_v2/
+deberta_ai_detector_fp32_v1/
+*.bin
+*.safetensors
+*.pt
+
+# Secrets
+.env
+
+# Reader-study / analysis-history database (generated at runtime)
+study.db
+*.db
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Calibration cache is intentionally committed (calibration/cache/raw_signals.json)
+# so grading/evaluation runs without API keys - do not ignore it.
+
+# OS / editor
+.DS_Store
+.vscode/

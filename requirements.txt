@@ -1,0 +1,31 @@
+# Core NLP / models
+spacy>=3.7,<3.9
+torch>=2.0
+transformers==4.46.3
+sentence-transformers>=3.0
+
+# Web search + LLM
+tavily-python>=0.5
+groq>=0.9
+
+# Backend
+fastapi>=0.110
+uvicorn>=0.29
+pydantic>=2.5
+python-dotenv>=1.0
+
+# Analysis
+textstat>=0.7.3
+vaderSentiment>=3.3.2
+numpy>=1.26
+
+# URL article fetching
+requests>=2.31
+trafilatura>=1.8
+beautifulsoup4>=4.12
+lxml>=4.9
+
+# NOTE: after installing these, also run:
+#   python -m spacy download en_core_web_sm
+# (not listed as a pip requirement above because it must be installed
+# as a separate step, not a pip package version pin.)
