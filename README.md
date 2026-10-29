@@ -1,8 +1,6 @@
 # Machine Credibility: How News Readers Evaluate AI-Generated Content
 
-Extends and restructures the misinformation-detection pipeline from
-[Bashame05/VerifactAi](https://github.com/Bashame05/VerifactAi) (previous
-year's mini project) into a credibility / readability / engagement /
+Extends and restructures the misinformation-detection pipeline into a credibility / readability / engagement /
 explainability analysis tool for AI-generated news content.
 
 ## What's reused from the original repo vs. new
